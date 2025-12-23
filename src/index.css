@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+#root {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+  --topbar: #7c8f80; /* Dark Sage */
+  --white-text: #ffffff; /* new */
+  --header: #c5d8cc; /* Pastel Sage Green */
+  --navbar: #a3b8a1; /* Earthy Sage */
+  --content-bg: #efece8; /* Nude Off-White */
+  --text-primary: #4e4a46; /* Natural Warm Grey */
+}
