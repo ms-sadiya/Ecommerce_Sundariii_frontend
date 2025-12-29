@@ -6,10 +6,10 @@ const FilterSidebar = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [filters, setFilters] = useState({
-    material: "",
-    occassion: "",
-    color: "",
-    size: "",
+    materials: [], // array
+    colors: [], // array
+    sizes: [], // array
+    occassions: [],
     sort: "",
     minPrice: 0,
     maxPrice: 1000,
@@ -56,18 +56,32 @@ const FilterSidebar = () => {
 
   // ✅ Sync URL → State
   useEffect(() => {
-    const params = Object.fromEntries([...searchParams]);
-
     setFilters({
-      material: params.material || "",
-      occassion: params.occassion || "",
-      color: params.color || "",
-      size: params.size || "",
-      sort: params.sort || "",
-      minPrice: Number(params.minPrice) || 0,
-      maxPrice: Number(params.maxPrice) || 1000,
+      materials: searchParams.getAll("material"),
+      colors: searchParams.getAll("color"),
+      sizes: searchParams.getAll("size"),
+      occassions: searchParams.getAll("occassion"),
+      sort: searchParams.get("sort") || "",
+      minPrice: Number(searchParams.get("minPrice")) || 0,
+      maxPrice: Number(searchParams.get("maxPrice")) || 1000,
     });
   }, [searchParams]);
+
+  const toggleMultiFilter = (key, value) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      const existing = next.getAll(key);
+
+      if (existing.includes(value)) {
+        next.delete(key);
+        existing.filter((v) => v !== value).forEach((v) => next.append(key, v));
+      } else {
+        next.append(key, value);
+      }
+
+      return next;
+    });
+  };
 
   // ✅ Update query params
   const updateFilter = (key, value) => {
@@ -124,18 +138,15 @@ const FilterSidebar = () => {
           {colors.map((c) => (
             <button
               key={c.name}
-              title={c.name}
-              onClick={() => updateFilter("color", c.name)}
-              className={`h-8 w-8 rounded-full border-2 transition
-            ${
-              filters.color === c.name
-                ? "border-black scale-105"
-                : "border-gray-300"
-            }
-          `}
-              style={{
-                background: c.value,
-              }}
+              onClick={() => toggleMultiFilter("color", c.name)}
+              className={`h-8 w-8 rounded-full border-2
+      ${
+        filters.colors.includes(c.name)
+          ? "border-black scale-105"
+          : "border-gray-300"
+      }
+    `}
+              style={{ background: c.value }}
             />
           ))}
         </div>
@@ -149,14 +160,10 @@ const FilterSidebar = () => {
           {sizes.map((s) => (
             <button
               key={s}
-              onClick={() => updateFilter("size", s)}
-              className={`px-3 py-1 text-sm rounded-full border transition
-            ${
-              filters.size === s
-                ? "bg-black text-white border-black"
-                : "border-gray-300 hover:border-black"
-            }
-          `}
+              onClick={() => toggleMultiFilter("size", s)}
+              className={`px-3 py-1 text-sm rounded-full border
+      ${filters.sizes.includes(s) ? "bg-black text-white" : "border-gray-300"}
+    `}
             >
               {s}
             </button>
@@ -172,8 +179,8 @@ const FilterSidebar = () => {
           <label key={m} className="flex items-center gap-2 text-sm mb-2">
             <input
               type="checkbox"
-              checked={filters.material === m}
-              onChange={() => updateFilter("material", m)}
+              checked={filters.materials.includes(m)}
+              onChange={() => toggleMultiFilter("material", m)}
             />
             {m}
           </label>
@@ -188,8 +195,8 @@ const FilterSidebar = () => {
           <label key={o} className="flex items-center gap-2 text-sm mb-2">
             <input
               type="checkbox"
-              checked={filters.occassion === o}
-              onChange={() => updateFilter("occassion", o)}
+              checked={filters.occassions.includes(o)}
+              onChange={() => toggleMultiFilter("occassion", o)}
             />
             {o}
           </label>
@@ -212,7 +219,7 @@ const FilterSidebar = () => {
           </label>
         ))}
       </div>
-      </div>
+    </div>
   );
 };
 
